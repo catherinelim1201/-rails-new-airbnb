@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_06_094452) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_06_104855) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,12 +19,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_094452) do
     t.date "end_date"
     t.integer "total_guests"
     t.string "status"
-    t.bigint "user_id"
+    t.bigint "guest_id"
     t.bigint "listing_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["guest_id"], name: "index_bookings_on_guest_id"
     t.index ["listing_id"], name: "index_bookings_on_listing_id"
-    t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
   create_table "listings", force: :cascade do |t|
@@ -33,10 +33,19 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_094452) do
     t.text "location"
     t.integer "num_of_guests"
     t.float "price_per_night"
-    t.bigint "user_id"
+    t.bigint "host_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_listings_on_user_id"
+    t.index ["host_id"], name: "index_listings_on_host_id"
+  end
+
+  create_table "unavailable_dates", force: :cascade do |t|
+    t.date "start_date"
+    t.date "end_date"
+    t.bigint "listing_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["listing_id"], name: "index_unavailable_dates_on_listing_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -54,6 +63,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_094452) do
   end
 
   add_foreign_key "bookings", "listings"
-  add_foreign_key "bookings", "users"
-  add_foreign_key "listings", "users"
+  add_foreign_key "bookings", "users", column: "guest_id"
+  add_foreign_key "listings", "users", column: "host_id"
+  add_foreign_key "unavailable_dates", "listings"
 end
